@@ -51,3 +51,24 @@ resource "aws_security_group" "ec2-security-group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_launch_template" "asg-launch-template" {
+  name_prefix            = "launch-template"
+  image_id               = "ami-0323c3dd2da7fb37d"
+  instance_type          = "t2.micro"
+  user_data              = filebase64("${path.module}/bootstrap.sh")
+  vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
+}
+
+resource "aws_autoscaling_group" "autoscaling-group" {
+  availability_zones = data.aws_availability_zones.az.names
+  desired_capacity   = 1
+  max_size           = 3
+  min_size           = 1
+  vpc_zone_identifier = aws_subnet.public_subnet.*.id
+
+  launch_template {
+    id      = aws_launch_template.asg-launch-template.id
+    version = "$Latest"
+  }
+}
