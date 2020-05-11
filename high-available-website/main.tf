@@ -91,12 +91,12 @@ resource "aws_launch_template" "asg-launch-template" {
   vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
 }
 
-resource "aws_autoscaling_group" "autoscaling-group" {
-  availability_zones = data.aws_availability_zones.az.names
-  desired_capacity   = 1
-  max_size           = 3
-  min_size           = 1
+resource "aws_autoscaling_group" "autoscaling-group" {  
+  desired_capacity    = 1
+  max_size            = 3
+  min_size            = 1
   vpc_zone_identifier = aws_subnet.public-subnets.*.id
+  depends_on          = [aws_subnet.public-subnets]
 
   launch_template {
     id      = aws_launch_template.asg-launch-template.id
