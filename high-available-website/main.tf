@@ -8,6 +8,7 @@ resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
 }
+
 resource "aws_subnet" "public-subnets" {
   vpc_id = aws_vpc.vpc.id
   cidr_block = "10.0.${0+count.index}.0/24"
@@ -18,6 +19,7 @@ resource "aws_subnet" "public-subnets" {
       Name = "Public"
   }
 }
+
 resource "aws_subnet" "private-subnets" {
   vpc_id = aws_vpc.vpc.id
   cidr_block = "10.0.${10+count.index}.0/24"
@@ -64,6 +66,7 @@ resource "aws_launch_template" "asg-launch-template" {
   name_prefix            = "launch-template"
   image_id               = "ami-0323c3dd2da7fb37d"
   instance_type          = "t2.micro"
+  key_name               = "var.key-pair"
   user_data              = filebase64("${path.module}/bootstrap.sh")
   vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
 }
