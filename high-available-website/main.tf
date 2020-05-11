@@ -9,6 +9,10 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = true
 }
 
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id
+}
+
 resource "aws_subnet" "public-subnets" {
   vpc_id = aws_vpc.vpc.id
   cidr_block = "10.0.${0+count.index}.0/24"
