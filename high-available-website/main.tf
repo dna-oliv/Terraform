@@ -9,7 +9,7 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = true
 }
 resource "aws_subnet" "public-subnets" {
-  vpc_id = aws_vpc.VPC.id
+  vpc_id = aws_vpc.vpc.id
   cidr_block = "10.0.${0+count.index}.0/24"
   map_public_ip_on_launch = true
   count = length(data.aws_availability_zones.az.names)
@@ -19,7 +19,7 @@ resource "aws_subnet" "public-subnets" {
   }
 }
 resource "aws_subnet" "private-subnets" {
-  vpc_id = aws_vpc.VPC.id
+  vpc_id = aws_vpc.vpc.id
   cidr_block = "10.0.${10+count.index}.0/24"
   map_public_ip_on_launch = false
   count = length(data.aws_availability_zones.az.names)
@@ -33,7 +33,7 @@ resource "aws_subnet" "private-subnets" {
 resource "aws_security_group" "ec2-security-group" { 
   name        = "ec2-sg"
   description = "Allows HTTP and HTTPS inbound traffic"
-  vpc_id      = aws_vpc.VPC.id
+  vpc_id      = aws_vpc.vpc.id
 
   ingress {
     description = "allow http access for everyone"
@@ -65,7 +65,7 @@ resource "aws_autoscaling_group" "autoscaling-group" {
   desired_capacity   = 1
   max_size           = 3
   min_size           = 1
-  vpc_zone_identifier = aws_subnet.public_subnet.*.id
+  vpc_zone_identifier = aws_subnet.public-subnets.*.id
 
   launch_template {
     id      = aws_launch_template.asg-launch-template.id
