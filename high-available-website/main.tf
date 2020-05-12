@@ -145,3 +145,21 @@ resource "aws_security_group" "alb-sg" {
     cidr_blocks =  ["0.0.0.0/0"]
   }
 }
+
+resource "aws_alb_target_group" "alb-target" {
+  name     = "tf-alb-target"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.vpc.id
+
+  health_check {
+    path                = "/healthy.html"
+    port                = 80
+    protocol            = "HTTP"
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    interval            = 5
+    timeout             = 4
+    matcher             = 200
+  }
+}
