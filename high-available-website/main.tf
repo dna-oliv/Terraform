@@ -104,6 +104,11 @@ resource "aws_autoscaling_group" "autoscaling-group" {
   }
 }
 
+resource "aws_autoscaling_attachment" "asg-attach" {
+  autoscaling_group_name = aws_autoscaling_group.autoscaling-group.id
+  alb_target_group_arn   = aws_alb_target_group.alb-target.arn
+}
+
 resource "aws_alb" "alb" {
   name                       = "tf-web-alb"
   internal                   = false
