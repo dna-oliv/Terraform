@@ -103,3 +103,16 @@ resource "aws_autoscaling_group" "autoscaling-group" {
     version = "$Latest"
   }
 }
+
+resource "aws_alb" "alb" {
+  name                       = "tf-web-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.alb-sg.id]
+  subnets                    = aws_subnet.public-subnets.*.id
+  enable_deletion_protection = false
+
+  tags = {
+    Name = "ALB NAME"
+  }
+}
