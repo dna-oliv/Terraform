@@ -4,6 +4,9 @@ provider "aws" {
 
 data "aws_availability_zones" "az" {}
 
+#----------------------------------------------------------------------------
+# Network
+#----------------------------------------------------------------------------
 resource "aws_vpc" "vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -45,6 +48,9 @@ resource "aws_subnet" "private-subnets" {
   }
 }
 
+#----------------------------------------------------------------------------
+# Security Groups
+#----------------------------------------------------------------------------
 resource "aws_security_group" "ec2-security-group" { 
   name        = "ec2-sg"
   description = "Allows HTTP and HTTPS inbound traffic"
@@ -82,6 +88,10 @@ resource "aws_security_group" "ec2-security-group" {
   }
 }
 
+
+#----------------------------------------------------------------------------
+# Auto Scaling Group
+#----------------------------------------------------------------------------
 resource "aws_launch_template" "asg-launch-template" {
   name_prefix            = "launch-template"
   image_id               = "ami-0323c3dd2da7fb37d"
@@ -109,6 +119,9 @@ resource "aws_autoscaling_attachment" "asg-attach" {
   alb_target_group_arn   = aws_alb_target_group.alb-target.arn
 }
 
+#----------------------------------------------------------------------------
+# Elastic Load Balancer
+#----------------------------------------------------------------------------
 resource "aws_alb" "alb" {
   name                       = "tf-web-alb"
   internal                   = false
