@@ -166,6 +166,47 @@ resource "aws_autoscaling_policy" "scale-down" {
 }
 
 #----------------------------------------------------------------------------
+# Cloud Watch Alarms
+#----------------------------------------------------------------------------
+resource "aws_cloudwatch_metric_alarm" "cw-cpu-scale-up" {
+  alarm_name                = "Instance Scale Up"
+  alarm_description         = "Scale instances up when CPU load is greater than 80%"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "3"
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/EC2"
+  period                    = "60"
+  statistic                 = "Average"
+  threshold                 = "80"
+  insufficient_data_actions = []
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.autoscaling-group.name
+  }
+
+  alarm_actions     = [aws_autoscaling_policy.scale-up.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "cw-cpu-scale-down" {
+  alarm_name                = "Instance Scale Down"
+  alarm_description         = "Scale instances down when CPU load is less than 15%"
+  comparison_operator       = "LessThanOrEqualToThreshold"
+  evaluation_periods        = "3"
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/EC2"
+  period                    = "60"
+  statistic                 = "Average"
+  threshold                 = "15"
+  insufficient_data_actions = []
+
+  dimensions = {
+    AutoScalingGroupName = aws_autoscaling_group.autoscaling-group.name
+  }
+
+  alarm_actions     = [aws_autoscaling_policy.scale-down.arn]
+}
+
+#----------------------------------------------------------------------------
 # Elastic Load Balancer
 #----------------------------------------------------------------------------
 resource "aws_alb" "alb" {
