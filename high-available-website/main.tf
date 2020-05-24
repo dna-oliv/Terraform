@@ -88,53 +88,6 @@ resource "aws_security_group" "ec2-security-group" {
   }
 }
 
-
-#----------------------------------------------------------------------------
-# Auto Scaling Group
-#----------------------------------------------------------------------------
-resource "aws_launch_template" "asg-launch-template" {
-  name_prefix            = "launch-template"
-  image_id               = "ami-0323c3dd2da7fb37d"
-  instance_type          = "t2.micro"
-  key_name               = var.key-pair
-  user_data              = filebase64("${path.module}/bootstrap.sh")
-  vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
-}
-
-resource "aws_autoscaling_group" "autoscaling-group" {  
-  desired_capacity    = 1
-  max_size            = 3
-  min_size            = 1
-  vpc_zone_identifier = aws_subnet.public-subnets.*.id
-  depends_on          = [aws_subnet.public-subnets]
-
-  launch_template {
-    id      = aws_launch_template.asg-launch-template.id
-    version = "$Latest"
-  }
-}
-
-resource "aws_autoscaling_attachment" "asg-attach" {
-  autoscaling_group_name = aws_autoscaling_group.autoscaling-group.id
-  alb_target_group_arn   = aws_alb_target_group.alb-target.arn
-}
-
-#----------------------------------------------------------------------------
-# Elastic Load Balancer
-#----------------------------------------------------------------------------
-resource "aws_alb" "alb" {
-  name                       = "tf-web-alb"
-  internal                   = false
-  load_balancer_type         = "application"
-  security_groups            = [aws_security_group.alb-sg.id]
-  subnets                    = aws_subnet.public-subnets.*.id
-  enable_deletion_protection = false
-
-  tags = {
-    Name = "ALB NAME"
-  }
-}
-
 resource "aws_security_group" "alb-sg" {
   name        = "alb-sg"
   description = "Application Load Balancer Security Group"
@@ -161,6 +114,54 @@ resource "aws_security_group" "alb-sg" {
     to_port     = 0
     protocol    = -1
     cidr_blocks =  ["0.0.0.0/0"]
+  }
+}
+
+#----------------------------------------------------------------------------
+# Auto Scaling Group
+#----------------------------------------------------------------------------
+resource "aws_launch_template" "asg-launch-template" {
+  name_prefix            = "launch-template"
+  image_id               = "ami-0323c3dd2da7fb37d"
+  instance_type          = "t2.micro"
+  key_name               = var.key-pair
+  user_data              = filebase64("${path.module}/bootstrap.sh")
+  vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
+}
+
+resource "aws_autoscaling_group" "autoscaling-group" {  
+  desired_capacity          = 1
+  max_size                  = 3
+  min_size                  = 1
+  health_check_grace_period = 180
+  health_check_type         = "ELB" 
+  vpc_zone_identifier       = aws_subnet.public-subnets.*.id
+  depends_on                = [aws_subnet.public-subnets]
+
+  launch_template {
+    id      = aws_launch_template.asg-launch-template.id
+    version = "$Latest"
+  }
+}
+
+resource "aws_autoscaling_attachment" "asg-attach" {
+  autoscaling_group_name = aws_autoscaling_group.autoscaling-group.id
+  alb_target_group_arn   = aws_alb_target_group.alb-target.arn
+}
+
+#----------------------------------------------------------------------------
+# Elastic Load Balancer
+#----------------------------------------------------------------------------
+resource "aws_alb" "alb" {
+  name                       = "tf-web-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.alb-sg.id]
+  subnets                    = aws_subnet.public-subnets.*.id
+  enable_deletion_protection = false
+
+  tags = {
+    Name = "ALB NAME"
   }
 }
 
