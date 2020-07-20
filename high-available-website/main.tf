@@ -4,6 +4,8 @@ provider "aws" {
 
 data "aws_availability_zones" "az" {}
 
+data "aws_elb_service_account" "main" {}
+
 #----------------------------------------------------------------------------
 # Network
 #----------------------------------------------------------------------------
@@ -47,7 +49,49 @@ resource "aws_subnet" "private-subnets" {
       Name = "Private"
   }
 }
+#----------------------------------------------------------------------------
+# Network Access Control Lists
+#----------------------------------------------------------------------------
+resource "aws_default_network_acl" "default" {
+  default_network_acl_id = aws_vpc.vpc.default_network_acl_id
+  
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
 
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 101
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 443
+    to_port    = 443
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+
+  egress {
+    protocol   = "tcp"
+    rule_no    = 101
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 443
+    to_port    = 443
+  }
+
+}
 #----------------------------------------------------------------------------
 # Security Groups
 #----------------------------------------------------------------------------
