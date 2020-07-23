@@ -29,6 +29,29 @@ resource "aws_iam_role" "vpc-fl-role" {
 EOF
 }
 
+resource "aws_iam_role_policy" "vpc-fl-policy" {
+  name = "vpc_fl_policy"
+  role = aws_iam_role.vpc-fl-role.id
+
+
+  policy = <<EOF
+{
+  "Statement": [
+      {
+          "Action": [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:DescribeLogGroups",
+              "logs:DescribeLogStreams",
+              "logs:PutLogEvents"
+          ],
+          "Effect": "Allow",
+          "Resource": "*"
+      }
+  ]
+}
+  EOF
+}
 #----------------------------------------------------------------------------
 # Network
 #----------------------------------------------------------------------------
