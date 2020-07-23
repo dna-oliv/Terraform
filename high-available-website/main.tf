@@ -91,6 +91,24 @@ resource "aws_default_network_acl" "default" {
     to_port    = 443
   }
 
+      ingress {
+    protocol   = "tcp"
+    rule_no    = 200
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 32768
+    to_port    = 61000
+  }
+
+    egress {
+    protocol   = "tcp"
+    rule_no    = 200
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 1024
+    to_port    = 65535
+  }
+
 }
 #----------------------------------------------------------------------------
 # Security Groups
