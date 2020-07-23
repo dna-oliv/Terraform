@@ -274,7 +274,7 @@ resource "aws_autoscaling_policy" "scale-down" {
 }
 
 #----------------------------------------------------------------------------
-# Cloud Watch Alarms
+# Cloud Watch Alarms and Groups
 #----------------------------------------------------------------------------
 resource "aws_cloudwatch_metric_alarm" "cw-cpu-scale-up" {
   alarm_name                = "Instance Scale Up"
@@ -312,6 +312,10 @@ resource "aws_cloudwatch_metric_alarm" "cw-cpu-scale-down" {
   }
 
   alarm_actions     = [aws_autoscaling_policy.scale-down.arn]
+}
+
+resource "aws_cloudwatch_log_group" "vpc-cwl-group" {
+  name = "VPC-Flow-Logs"
 }
 
 #----------------------------------------------------------------------------
