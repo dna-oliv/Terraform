@@ -7,6 +7,29 @@ data "aws_availability_zones" "az" {}
 data "aws_elb_service_account" "main" {}
 
 #----------------------------------------------------------------------------
+# IAM Roles and Policies
+#----------------------------------------------------------------------------
+resource "aws_iam_role" "vpc-fl-role" {
+  name = "vpc_fl_role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "vpc-flow-logs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+#----------------------------------------------------------------------------
 # Network
 #----------------------------------------------------------------------------
 resource "aws_vpc" "vpc" {
