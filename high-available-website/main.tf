@@ -321,6 +321,16 @@ resource "aws_cloudwatch_log_group" "vpc-cwl-group" {
 #----------------------------------------------------------------------------
 # Elastic Load Balancer
 #----------------------------------------------------------------------------
+resource "aws_flow_log" "vpc_flow_log" {
+  iam_role_arn    = aws_iam_role.vpc-fl-role.arn
+  log_destination = aws_cloudwatch_log_group.vpc-cwl-group.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.vpc.id
+}
+
+#----------------------------------------------------------------------------
+# Elastic Load Balancer
+#----------------------------------------------------------------------------
 resource "aws_alb" "alb" {
   name                       = "tf-web-alb"
   internal                   = false
