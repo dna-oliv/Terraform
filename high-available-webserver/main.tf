@@ -137,7 +137,7 @@ resource "aws_default_network_acl" "default" {
     to_port    = 443
   }
 
-      ingress {
+  ingress {
     protocol   = "tcp"
     rule_no    = 200
     action     = "allow"
